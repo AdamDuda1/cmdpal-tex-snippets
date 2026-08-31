@@ -11,7 +11,7 @@
   <Identity
     Name="TexSnippets"
     Publisher="CN=Adam Duda"
-    Version="0.0.1.0" />
+    Version="0.1.0.0" />
   <!-- Publisher= must exactly match the Subject of the certificate used to sign the
        MSIX package. When publishing through the Microsoft Store, replace both Name= and
        Publisher= with the values Partner Center assigns to the app. -->
