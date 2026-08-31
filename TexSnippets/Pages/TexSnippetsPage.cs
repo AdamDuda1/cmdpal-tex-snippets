@@ -72,7 +72,7 @@ internal sealed partial class TexSnippetsPage : DynamicListPage
             Details = new Details
             {
                 Title = preview,
-                Body = $"```latex\n{source}\n```",
+                Body = $"Main action - copy unicode,\nSecondary action - copy PNG.\n```latex\n{source}\n```",
             },
         };
     }
