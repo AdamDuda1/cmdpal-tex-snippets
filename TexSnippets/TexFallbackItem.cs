@@ -1,6 +1,5 @@
-// Copyright (c) Microsoft Corporation
-// The Microsoft Corporation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+// Copyright (c) Adam Duda
+// Licensed under the MIT license. See the LICENSE file in the project root for details.
 
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using TexSnippets.Commands;
