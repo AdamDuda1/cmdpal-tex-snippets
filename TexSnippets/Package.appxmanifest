@@ -10,14 +10,15 @@
 
   <Identity
     Name="TexSnippets"
-    Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+    Publisher="CN=Adam Duda"
     Version="0.0.1.0" />
-  <!-- When you're ready to publish your extension, you'll need to change the
-       Publisher= to match your own identity -->
+  <!-- Publisher= must exactly match the Subject of the certificate used to sign the
+       MSIX package. When publishing through the Microsoft Store, replace both Name= and
+       Publisher= with the values Partner Center assigns to the app. -->
 
   <Properties>
     <DisplayName>Tex Snippets</DisplayName>
-    <PublisherDisplayName>A Lone Developer</PublisherDisplayName>
+    <PublisherDisplayName>Adam Duda</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
