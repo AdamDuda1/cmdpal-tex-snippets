@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "TexSnippets (Package)": {
+      "commandName": "MsixPackage",
+      "doNotLaunchApp": true
+    },
+    "TexSnippets (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
