@@ -74,7 +74,7 @@ To run it inside Command Palette, deploy the MSIX package (the *TexSnippets (Pac
 Visual Studio, or `dotnet publish` with `Properties/PublishProfiles/win-x64.pubxml`), then restart
 Command Palette (or use the `reload` command) so it picks up the new extension.
 
-I reccomend installing Visual Studio >2026 with ".NET desktop apps" and "WinUI packages" options
+I recommend installing Visual Studio >2026 with ".NET desktop apps" and "WinUI packages" options
 and using Build > Deploy TexSnippets option.
 
 ## Contributing

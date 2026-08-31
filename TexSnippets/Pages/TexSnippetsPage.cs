@@ -32,7 +32,7 @@ internal sealed partial class TexSnippetsPage : DynamicListPage
         Title = "Tex Snippets";
         Name = "Open";
         PlaceholderText = @"Type a LaTeX snippet, e.g. \frac{\pi}{2}";
-        ShowDetails = true;
+        ShowDetails = true; // !!!
     }
 
     public override void UpdateSearchText(string oldSearch, string newSearch)
@@ -66,8 +66,8 @@ internal sealed partial class TexSnippetsPage : DynamicListPage
             Icon = Icons.Tex,
             MoreCommands =
             [
-                new CommandContextItem(new CopyTextCommand(source) { Name = "Copy LaTeX" }),
                 new CommandContextItem(new CopyPngCommand { Source = source }),
+                new CommandContextItem(new CopyTextCommand(source) { Name = "Copy LaTeX" })
             ],
             Details = new Details
             {

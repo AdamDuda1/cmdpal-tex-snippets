@@ -31,7 +31,7 @@ internal sealed partial class TexFallbackItem : FallbackCommandItem
         Icon = Icons.Tex;
         MoreCommands = [new CommandContextItem(copySource)];
 
-        // An empty title keeps the item hidden until the query actually looks like TeX.
+        // the empty title keeps the item hidden until the query actually looks like tex
         Title = string.Empty;
     }
 
@@ -57,8 +57,8 @@ internal sealed partial class TexFallbackItem : FallbackCommandItem
     private void Show(string title, string subtitle, IconInfo icon, string preview, string source)
     {
         Title = title;
-        Subtitle = subtitle;
         Icon = icon;
+        Subtitle = subtitle;
         _copyPreview.Text = preview;
         _copySource.Text = source;
     }

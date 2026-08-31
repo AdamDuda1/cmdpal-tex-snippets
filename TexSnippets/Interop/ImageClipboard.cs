@@ -10,13 +10,13 @@ using Windows.Storage.Streams;
 namespace TexSnippets.Interop;
 
 /// <summary>
-/// Puts an image on the clipboard. The toolkit's <c>ClipboardHelper</c> only handles text, so this
-/// mirrors what it does for text: raw Win32 calls, marshalled onto an STA thread.
+/// Puts an image on the clipboard. Mirrors what the toolkit's <c>ClipboardHelper</c> does
+/// to text for images.
 /// </summary>
 /// <remarks>
 /// Two formats are published at once because applications disagree about what they want:
 /// the registered "PNG" format keeps transparency (browsers, Slack, Word, Notion), while
-/// <c>CF_DIB</c> — flattened onto white — is what the older image editors read.
+/// <c>CF_DIB</c> (flattened onto white) is what some older apps read.
 /// </remarks>
 internal static partial class ImageClipboard
 {
@@ -36,9 +36,7 @@ internal static partial class ImageClipboard
         OnStaThread(() =>
         {
             if (!TryOpenClipboard())
-            {
                 throw new InvalidOperationException("Could not open the clipboard; another application is holding it.");
-            }
 
             try
             {
@@ -57,15 +55,11 @@ internal static partial class ImageClipboard
     private static void Publish(uint format, byte[] bytes)
     {
         if (format == 0)
-        {
             return;
-        }
 
         var handle = GlobalAlloc(GMEM_MOVEABLE, (nuint)bytes.Length);
         if (handle == IntPtr.Zero)
-        {
             throw new InvalidOperationException("Out of memory while copying to the clipboard.");
-        }
 
         var block = GlobalLock(handle);
         if (block == IntPtr.Zero)
@@ -78,9 +72,7 @@ internal static partial class ImageClipboard
         GlobalUnlock(handle);
 
         if (SetClipboardData(format, handle) == IntPtr.Zero)
-        {
             GlobalFree(handle);
-        }
     }
 
     /// <summary>Decodes the PNG to straight BGRA8 using the imaging codecs Windows already ships.</summary>
@@ -119,15 +111,14 @@ internal static partial class ImageClipboard
         BitConverter.TryWriteBytes(dib.AsSpan(0), HeaderSize);
         BitConverter.TryWriteBytes(dib.AsSpan(4), width);
         BitConverter.TryWriteBytes(dib.AsSpan(8), height);
-        BitConverter.TryWriteBytes(dib.AsSpan(12), (short)1);      // planes
-        BitConverter.TryWriteBytes(dib.AsSpan(14), (short)24);     // bits per pixel
+        BitConverter.TryWriteBytes(dib.AsSpan(12), (short)1);
+        BitConverter.TryWriteBytes(dib.AsSpan(14), (short)24);
         BitConverter.TryWriteBytes(dib.AsSpan(20), stride * height);
 
         for (var y = 0; y < height; y++)
         {
             var source = y * width * 4;
 
-            // DIB rows run bottom-up.
             var target = HeaderSize + ((height - 1 - y) * stride);
 
             for (var x = 0; x < width; x++)
@@ -164,7 +155,6 @@ internal static partial class ImageClipboard
         return false;
     }
 
-    /// <summary>The clipboard is an STA-only API, and the extension host runs us in an MTA.</summary>
     private static void OnStaThread(Action action)
     {
         Exception? failure = null;

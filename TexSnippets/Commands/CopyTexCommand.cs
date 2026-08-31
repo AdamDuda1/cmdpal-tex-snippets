@@ -22,9 +22,7 @@ internal sealed partial class CopyTexCommand : InvokableCommand
     public override CommandResult Invoke()
     {
         if (string.IsNullOrEmpty(Text))
-        {
             return CommandResult.KeepOpen();
-        }
 
         ClipboardHelper.SetText(Text);
         return CommandResult.ShowToast(new ToastArgs { Message = "Copied to clipboard", Result = CommandResult.Dismiss() });

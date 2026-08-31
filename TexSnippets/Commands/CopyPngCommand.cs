@@ -10,7 +10,8 @@ namespace TexSnippets.Commands;
 
 /// <summary>
 /// Typesets the snippet with the real LaTeX toolchain and puts the resulting image on the clipboard.
-/// The compile happens here, on invoke, rather than while the user types — it takes about a second.
+/// The compile happens here, on invoke, rather than while the user types. Takes about a second on my
+/// mid-end machine.
 /// </summary>
 internal sealed partial class CopyPngCommand : InvokableCommand
 {
@@ -20,22 +21,17 @@ internal sealed partial class CopyPngCommand : InvokableCommand
         Icon = Icons.Image;
     }
 
-    /// <summary>The LaTeX source to typeset. Mutable so one instance can follow the live query.</summary>
     public string Source { get; set; } = string.Empty;
 
     public override CommandResult Invoke()
     {
         if (string.IsNullOrWhiteSpace(Source))
-        {
             return CommandResult.KeepOpen();
-        }
 
         var (png, error) = TexPngCompiler.Compile(Source);
 
         if (png is null)
-        {
             return Toast(error ?? "LaTeX failed.", CommandResult.KeepOpen());
-        }
 
         try
         {

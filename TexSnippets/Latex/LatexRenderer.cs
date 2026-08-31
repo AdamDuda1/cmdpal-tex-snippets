@@ -18,14 +18,13 @@ internal readonly record struct LatexResult(string Preview, string? Error)
 /// <summary>
 /// A deliberately tiny TeX "compiler": it validates the structural syntax of a math snippet
 /// (braces, math delimiters, <c>\left</c>/<c>\right</c>, environments) and renders it to Unicode.
-/// It is a preview, not a typesetter — unknown control sequences are passed through untouched.
 /// </summary>
 internal static class LatexRenderer
 {
     /// <summary>Heuristic used by the fallback command to decide whether a query is worth claiming.</summary>
+    // TODO here: fallback doesnt always work
     public static bool LooksLikeTex(string query) =>
-        !string.IsNullOrWhiteSpace(query) && query.AsSpan().IndexOfAny("\\$^_") >= 0 || true;
-        //!string.IsNullOrWhiteSpace(query) && query.AsSpan().IndexOfAny("\\$^_") >= 0;
+        !string.IsNullOrWhiteSpace(query) && query.AsSpan().IndexOfAny("\\$^_") >= 0;
 
     public static LatexResult Render(string snippet)
     {
@@ -34,7 +33,6 @@ internal static class LatexRenderer
         return parser.Error is null ? new LatexResult(preview, null) : new LatexResult(string.Empty, parser.Error);
     }
 
-    /// <summary>Single-pass recursive descent over the snippet. Stops at the first error.</summary>
     private sealed class Parser(string text)
     {
         private readonly Stack<string> _environments = new();
@@ -44,6 +42,8 @@ internal static class LatexRenderer
 
         public string? Error { get; private set; }
 
+        
+        // just the errors i often make. add yours too if you want :))
         public string Run()
         {
             var body = ParseBody();
@@ -71,7 +71,6 @@ internal static class LatexRenderer
             return body;
         }
 
-        /// <summary>Renders characters until the end of the input or an unmatched '}' (left for the caller).</summary>
         private string ParseBody()
         {
             var sb = new StringBuilder();
@@ -80,9 +79,7 @@ internal static class LatexRenderer
             {
                 var c = text[_index];
                 if (c == '}')
-                {
                     break;
-                }
 
                 switch (c)
                 {
@@ -124,7 +121,6 @@ internal static class LatexRenderer
             return sb.ToString();
         }
 
-        /// <summary>Renders the next argument: a braced group, a control sequence, or a single character.</summary>
         private string ReadArgument()
         {
             SkipSpaces();
@@ -144,15 +140,12 @@ internal static class LatexRenderer
             }
 
             if (text[_index] == '\\')
-            {
-                // The space a control word gobbles is noise when it sits inside an argument.
                 return ReadCommand().TrimEnd(' ');
-            }
 
             return text.Substring(_index++, 1);
         }
 
-        /// <summary>Renders the control sequence starting at the current backslash.</summary>
+        //renders the control sequence starting at the current backslash
         private string ReadCommand()
         {
             _index++;
@@ -179,9 +172,7 @@ internal static class LatexRenderer
 
             var start = _index;
             while (_index < text.Length && char.IsAsciiLetter(text[_index]))
-            {
                 _index++;
-            }
 
             var name = text[start.._index];
 
@@ -229,13 +220,12 @@ internal static class LatexRenderer
                     return "\n";
 
                 default:
-                    // TeX swallows the space after a control word; keep one so the preview stays readable.
+                    // tex swallows the space after a control word for some reason
                     var spaced = SkipSpaces() ? " " : string.Empty;
                     return (LatexSymbols.Commands.TryGetValue(name, out var symbol) ? symbol : "\\" + name) + spaced;
             }
         }
 
-        /// <summary>Reads the delimiter after <c>\left</c> or <c>\right</c>; a '.' means "invisible".</summary>
         private string ReadDelimiter()
         {
             SkipSpaces();
@@ -247,9 +237,7 @@ internal static class LatexRenderer
             }
 
             if (text[_index] == '\\')
-            {
                 return ReadCommand().TrimEnd(' ');
-            }
 
             var delimiter = text.Substring(_index++, 1);
             return delimiter == "." ? string.Empty : delimiter;
@@ -266,26 +254,21 @@ internal static class LatexRenderer
             Fail($"missing '{expected}'");
         }
 
-        /// <summary>Skips spaces and reports whether there were any.</summary>
         private bool SkipSpaces()
         {
             var start = _index;
 
             while (_index < text.Length && text[_index] == ' ')
-            {
                 _index++;
-            }
 
             return _index > start;
         }
 
         private void Fail(string reason) => Error ??= $"Syntax error at position {_index + 1}: {reason}.";
 
-        /// <summary>Parenthesises a rendered fragment unless it is already a single unit.</summary>
         private static string Group(string rendered) =>
             rendered.Length <= 1 ? rendered : $"({rendered})";
 
-        /// <summary>Raises/lowers a fragment, falling back to a literal '^'/'_' when Unicode has no such glyph.</summary>
         private static string ToScript(string rendered, Dictionary<char, char> map, char marker)
         {
             var sb = new StringBuilder(rendered.Length);
@@ -293,9 +276,7 @@ internal static class LatexRenderer
             foreach (var c in rendered)
             {
                 if (!map.TryGetValue(c, out var scripted))
-                {
                     return marker + Group(rendered);
-                }
 
                 sb.Append(scripted);
             }
@@ -308,9 +289,7 @@ internal static class LatexRenderer
             var sb = new StringBuilder(rendered.Length);
 
             foreach (var c in rendered)
-            {
                 sb.Append(LatexSymbols.Blackboard.TryGetValue(c, out var doubleStruck) ? doubleStruck : c.ToString());
-            }
 
             return sb.ToString();
         }

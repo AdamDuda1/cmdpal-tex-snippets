@@ -8,15 +8,14 @@ using System.Text;
 
 namespace TexSnippets.Latex;
 
-/// <summary>The outcome of a real LaTeX run: the rendered image, or the first error TeX reported.</summary>
+/// <summary>The outcome of a real LaTeX run.</summary>
 /// <param name="Png">PNG bytes, or <see langword="null"/> when the run failed.</param>
 /// <param name="Error">Human-readable failure, or <see langword="null"/> on success.</param>
 internal readonly record struct TexPngResult(byte[]? Png, string? Error);
 
 /// <summary>
-/// Renders a snippet with the locally installed TeX distribution: <c>latex</c> produces a DVI and
-/// <c>dvipng</c> turns it into a bitmap. That round trip costs about a second, so it is only ever
-/// run when the user picks the command — never while they are typing.
+/// Renders a snippet with the locally installed TeX distribution - <c>latex</c> produces a DVI and
+/// <c>dvipng</c> turns it into a bitmap.
 /// </summary>
 internal static class TexPngCompiler
 {

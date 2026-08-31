@@ -28,14 +28,11 @@ internal sealed partial class TexPngFallbackItem : FallbackCommandItem
         Icon = Icons.Image;
         Subtitle = "Typeset with LaTeX and copy as an image";
 
-        // An empty title keeps the item hidden until the query actually looks like TeX.
         Title = string.Empty;
     }
 
     public override void UpdateQuery(string query)
     {
-        // No point offering the row without a TeX install, nor for a snippet that is already
-        // malformed — the cheap structural check saves the user a second-long compile that would fail.
         var offer = TexPngCompiler.IsAvailable
             && LatexRenderer.LooksLikeTex(query)
             && !LatexRenderer.Render(query).IsError;

@@ -53,14 +53,14 @@ internal static class LatexSymbols
         // Big operators and calculus
         ["sum"] = "∑", ["prod"] = "∏", ["coprod"] = "∐", ["int"] = "∫", ["iint"] = "∬",
         ["iiint"] = "∭", ["oint"] = "∮", ["partial"] = "∂", ["nabla"] = "∇",
-        ["infty"] = "∞", ["lim"] = "lim", ["sup"] = "sup", ["inf"] = "inf",
+        ["infty"] = "∞", ["lim"] = "𝑙𝑖𝑚", ["sup"] = "𝑠𝑢𝑝", ["inf"] = "𝑖𝑛𝑓",
 
         // Named functions
-        ["sin"] = "sin", ["cos"] = "cos", ["tan"] = "tan", ["cot"] = "cot",
-        ["sec"] = "sec", ["csc"] = "csc", ["arcsin"] = "arcsin", ["arccos"] = "arccos",
-        ["arctan"] = "arctan", ["sinh"] = "sinh", ["cosh"] = "cosh", ["tanh"] = "tanh",
-        ["log"] = "log", ["ln"] = "ln", ["exp"] = "exp", ["min"] = "min", ["max"] = "max",
-        ["det"] = "det", ["dim"] = "dim", ["ker"] = "ker", ["deg"] = "deg", ["gcd"] = "gcd",
+        ["sin"] = "𝑠𝑖𝑛", ["cos"] = "𝑐𝑜𝑠", ["tan"] = "𝑡𝑎𝑛", ["cot"] = "𝑐𝑜𝑡",
+        ["sec"] = "𝑠𝑒𝑐", ["csc"] = "𝑐𝑠𝑐", ["arcsin"] = "𝑎𝑟𝑐𝑠𝑖𝑛", ["arccos"] = "𝑎𝑟𝑐𝑐𝑜𝑠",
+        ["arctan"] = "𝑎𝑟𝑐𝑡𝑎𝑛", ["sinh"] = "𝑠𝑖𝑛ℎ", ["cosh"] = "𝑐𝑜𝑠ℎ", ["tanh"] = "𝑡𝑎𝑛ℎ",
+        ["log"] = "𝑙𝑜𝑔", ["ln"] = "𝑙𝑛", ["exp"] = "𝑒𝑥𝑝", ["min"] = "𝑚𝑖𝑛", ["max"] = "𝑚𝑎𝑥",
+        ["det"] = "𝑑𝑒𝑡", ["dim"] = "𝑑𝑖𝑚", ["ker"] = "𝑘𝑒𝑟", ["deg"] = "𝑑𝑒𝑔", ["gcd"] = "𝑔𝑐𝑑",
 
         // Miscellaneous
         ["ldots"] = "…", ["dots"] = "…", ["cdots"] = "⋯", ["vdots"] = "⋮", ["ddots"] = "⋱",
@@ -101,5 +101,5 @@ internal static class LatexSymbols
         ['M'] = "𝕄", ['N'] = "ℕ", ['O'] = "𝕆", ['P'] = "ℙ", ['Q'] = "ℚ", ['R'] = "ℝ",
         ['S'] = "𝕊", ['T'] = "𝕋", ['U'] = "𝕌", ['V'] = "𝕍", ['W'] = "𝕎", ['X'] = "𝕏",
         ['Y'] = "𝕐", ['Z'] = "ℤ",
-    };
+    }; // dont look good do they
 }
