@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using TexSnippets.Interop;
 
 namespace TexSnippets.Latex;
 
@@ -69,7 +70,9 @@ internal static class TexPngCompiler
                 return new TexPngResult(null, $"dvipng failed: {FirstLine(dvipngLog)}");
             }
 
-            return new TexPngResult(File.ReadAllBytes(image), null);
+            // dvipng crops flush to the ink, which looks cramped once pasted. Scale the margin
+            // with the resolution so the proportions hold whatever dpi the caller asks for.
+            return new TexPngResult(PngPadding.Expand(File.ReadAllBytes(image), dpi / 12), null);
         }
         catch (IOException ex)
         {
@@ -86,20 +89,32 @@ internal static class TexPngCompiler
     }
 
     /// <summary>Wraps the snippet in the smallest document that still typesets it.</summary>
+    /// <remarks>
+    /// The preamble follows what the TeXit Discord bot does, because that is the look people
+    /// recognise: stock Computer Modern - no font package anywhere - and <c>\everymath</c> forcing
+    /// display style, so fractions, sums and integrals get their full-size shapes rather than the
+    /// squashed inline ones. There is deliberately no <c>\everydisplay</c>: it makes the AMS
+    /// multi-line environments fail with "Improper \halign inside $$'s".
+    /// </remarks>
     private static string Document(string snippet)
     {
         var body = Unwrap(snippet.Trim());
 
         // Environments such as align already carry their own math mode; everything else needs one.
-        var math = IsOwnMathMode(body) ? body : $@"$\displaystyle {body}$";
+        var math = IsOwnMathMode(body) ? body : $"${body}$";
 
-        return $$"""
+        // Three '$' so that the doubled closing braces in \IfFileExists are literal text
+        // rather than the end of an interpolation hole.
+        return $$$"""
             \documentclass[12pt]{article}
             \usepackage{amsmath}
             \usepackage{amssymb}
+            \usepackage{amsfonts}
+            \IfFileExists{mathtools.sty}{\usepackage{mathtools}}{}
+            \everymath{\displaystyle}
             \pagestyle{empty}
             \begin{document}
-            {{math}}
+            {{{math}}}
             \end{document}
 
             """;

@@ -186,11 +186,29 @@ internal static class LatexRenderer
                 case "sqrt":
                     return "√" + Group(ReadArgument());
 
-                case "text" or "textrm" or "mathrm" or "mathbf" or "mathit" or "mathsf" or "operatorname":
+                case "text" or "textrm" or "mathrm" or "operatorname":
                     return ReadArgument();
 
                 case "mathbb":
-                    return ToBlackboard(ReadArgument());
+                    return ToAlphabet(ReadArgument(), LatexSymbols.Blackboard);
+
+                case "mathbf":
+                    return ToAlphabet(ReadArgument(), LatexSymbols.Bold);
+
+                case "mathit":
+                    return ToAlphabet(ReadArgument(), LatexSymbols.Italic);
+
+                case "mathcal" or "mathscr":
+                    return ToAlphabet(ReadArgument(), LatexSymbols.Script);
+
+                case "mathfrak":
+                    return ToAlphabet(ReadArgument(), LatexSymbols.Fraktur);
+
+                case "mathsf":
+                    return ToAlphabet(ReadArgument(), LatexSymbols.SansSerif);
+
+                case "mathtt":
+                    return ToAlphabet(ReadArgument(), LatexSymbols.Monospace);
 
                 case "left":
                     _openDelimiters++;
@@ -284,12 +302,14 @@ internal static class LatexRenderer
             return sb.ToString();
         }
 
-        private static string ToBlackboard(string rendered)
+        /// <summary>Restyles ASCII letters through one of the Unicode math alphabets.</summary>
+        /// <remarks>Anything the alphabet has no glyph for - digits, punctuation - is left alone.</remarks>
+        private static string ToAlphabet(string rendered, Dictionary<char, string> alphabet)
         {
             var sb = new StringBuilder(rendered.Length);
 
             foreach (var c in rendered)
-                sb.Append(LatexSymbols.Blackboard.TryGetValue(c, out var doubleStruck) ? doubleStruck : c.ToString());
+                sb.Append(alphabet.TryGetValue(c, out var styled) ? styled : c.ToString());
 
             return sb.ToString();
         }
