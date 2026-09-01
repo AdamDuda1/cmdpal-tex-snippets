@@ -9,15 +9,15 @@
   IgnorableNamespaces="uap uap3 rescap">
 
   <Identity
-    Name="TexSnippets"
-    Publisher="CN=Adam Duda"
-    Version="0.1.0.0" />
-  <!-- Publisher= must exactly match the Subject of the certificate used to sign the
-       MSIX package. When publishing through the Microsoft Store, replace both Name= and
-       Publisher= with the values Partner Center assigns to the app. -->
+    Name="AdamDuda.TexSnippetsforCmdPal"
+    Publisher="CN=1109C50D-6C82-42ED-BC81-8E1DBA7D9D6D"
+    Version="0.2.0.0" />
+  <!-- Name=, Publisher= and PublisherDisplayName= are assigned by Partner Center
+       (Product Management > Product identity) and must be copied verbatim. Packages for the
+       Store are uploaded unsigned; Microsoft signs them during certification. -->
 
   <Properties>
-    <DisplayName>Tex Snippets</DisplayName>
+    <DisplayName>TexSnippets for CmdPal</DisplayName>
     <PublisherDisplayName>Adam Duda</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
