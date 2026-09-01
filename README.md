@@ -97,3 +97,7 @@ succeeds with no new warnings. Match the surrounding style; the project builds w
 MIT - see [LICENSE](LICENSE).
 
 Scaffolded from the Microsoft Command Palette extension template, also MIT.
+
+## AI usage
+
+I user Claude Opus 5 for basic research, unicode symbols and code refactoring.
