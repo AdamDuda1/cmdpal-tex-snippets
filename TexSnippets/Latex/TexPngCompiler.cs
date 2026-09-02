@@ -195,7 +195,7 @@ internal static class TexPngCompiler
 
                 if (context.StartsWith("l.", StringComparison.Ordinal) && space > 0)
                 {
-                    return $"{message} — near: {context[(space + 1)..].Trim()}";
+                    return $"{message} - near: {context[(space + 1)..].Trim()}";
                 }
             }
 

@@ -57,7 +57,7 @@ transparency for browsers, Slack, Word and Notion, and a white-flattened `CF_DIB
 
 - Windows 10 version 2004 (build 19041) or later, x64 or ARM64
 - [Command Palette](https://learn.microsoft.com/windows/powertoys/command-palette/overview) (ships with PowerToys)
-- **For *Copy as PNG* only:** a LaTeX installation providing `latex.exe` and `dvipng.exe` —
+- **For *Copy as PNG* only:** a LaTeX installation providing `latex.exe` and `dvipng.exe` -
   [TeX Live](https://tug.org/texlive/) or [MiKTeX](https://miktex.org/). Both are looked up on `PATH`
   and in the usual install locations. Without one, the PNG row simply doesn't appear and everything
   else works as normal.
@@ -100,4 +100,4 @@ Scaffolded from the Microsoft Command Palette extension template, also MIT.
 
 ## AI usage
 
-I user Claude Opus 5 for basic research, unicode symbols and code refactoring.
+I used Claude Opus 5 for basic research, to generate the unicode symbols, parts of README and for code refactoring.
