@@ -2,13 +2,12 @@
 // Licensed under the MIT license. See the LICENSE file in the project root for details.
 
 using System;
-using Windows.Graphics.Imaging;
-using Windows.Storage.Streams;
+using TexSnippets.Latex;
 
 namespace TexSnippets.Interop;
 
 /// <summary>
-/// Adds a transparent margin around a PNG.
+/// Adds a margin around a PNG.
 /// </summary>
 /// <remarks>
 /// This cannot be done in the TeX toolchain: <c>dvipng -T tight</c> crops to the ink, so any
@@ -18,8 +17,11 @@ namespace TexSnippets.Interop;
 /// </remarks>
 internal static class PngPadding
 {
-    /// <summary>Returns <paramref name="png"/> with <paramref name="margin"/> transparent pixels on every side.</summary>
-    public static byte[] Expand(byte[] png, int margin)
+    /// <summary>
+    /// Returns <paramref name="png"/> with <paramref name="margin"/> extra pixels on every side,
+    /// transparent unless <paramref name="background"/> says otherwise.
+    /// </summary>
+    public static byte[] Expand(byte[] png, int margin, TexColor? background = null)
     {
         ArgumentNullException.ThrowIfNull(png);
 
@@ -28,13 +30,25 @@ internal static class PngPadding
             return png;
         }
 
-        var (width, height, bgra) = Decode(png);
+        var (width, height, bgra) = PngImage.Decode(png);
         var paddedWidth = width + (margin * 2);
         var paddedHeight = height + (margin * 2);
         var padded = new byte[paddedWidth * paddedHeight * 4];
 
-        // The new buffer starts fully zeroed, which in straight BGRA8 is transparent already;
-        // only the original rows need copying, each shifted right and down by the margin.
+        // A zeroed buffer is already transparent in straight BGRA8, so only an opaque background
+        // needs painting before the original rows are copied in.
+        if (background is { } fill)
+        {
+            for (var i = 0; i < padded.Length; i += 4)
+            {
+                padded[i] = fill.B;
+                padded[i + 1] = fill.G;
+                padded[i + 2] = fill.R;
+                padded[i + 3] = 255;
+            }
+        }
+
+        // Each original row is shifted right and down by the margin.
         for (var y = 0; y < height; y++)
         {
             var source = y * width * 4;
@@ -42,53 +56,6 @@ internal static class PngPadding
             System.Buffer.BlockCopy(bgra, source, padded, destination, width * 4);
         }
 
-        return Encode(paddedWidth, paddedHeight, padded);
-    }
-
-    /// <summary>Decodes to straight BGRA8, matching what <see cref="ImageClipboard"/> does.</summary>
-    private static (int Width, int Height, byte[] Bgra) Decode(byte[] png)
-    {
-        using var stream = new InMemoryRandomAccessStream();
-
-        var writer = new DataWriter(stream);
-        writer.WriteBytes(png);
-        writer.StoreAsync().AsTask().GetAwaiter().GetResult();
-        writer.DetachStream();
-        stream.Seek(0);
-
-        var decoder = BitmapDecoder.CreateAsync(stream).AsTask().GetAwaiter().GetResult();
-        var pixels = decoder.GetPixelDataAsync(
-            BitmapPixelFormat.Bgra8,
-            BitmapAlphaMode.Straight,
-            new BitmapTransform(),
-            ExifOrientationMode.IgnoreExifOrientation,
-            ColorManagementMode.DoNotColorManage).AsTask().GetAwaiter().GetResult();
-
-        return ((int)decoder.PixelWidth, (int)decoder.PixelHeight, pixels.DetachPixelData());
-    }
-
-    private static byte[] Encode(int width, int height, byte[] bgra)
-    {
-        using var stream = new InMemoryRandomAccessStream();
-
-        var encoder = BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream).AsTask().GetAwaiter().GetResult();
-        encoder.SetPixelData(
-            BitmapPixelFormat.Bgra8,
-            BitmapAlphaMode.Straight,
-            (uint)width,
-            (uint)height,
-            96,
-            96,
-            bgra);
-        encoder.FlushAsync().AsTask().GetAwaiter().GetResult();
-
-        stream.Seek(0);
-        var bytes = new byte[stream.Size];
-        var reader = new DataReader(stream);
-        reader.LoadAsync((uint)stream.Size).AsTask().GetAwaiter().GetResult();
-        reader.ReadBytes(bytes);
-        reader.DetachStream();
-
-        return bytes;
+        return PngImage.Encode(paddedWidth, paddedHeight, padded);
     }
 }
