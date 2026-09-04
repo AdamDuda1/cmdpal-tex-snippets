@@ -19,4 +19,7 @@ internal static class Icons
 
     /// <summary>Segoe Fluent "Photo", used for the PNG output.</summary>
     public static IconInfo Image { get; } = new("");
+
+    /// <summary>Segoe Fluent "Setting".</summary>
+    public static IconInfo Settings { get; } = new("");
 }
