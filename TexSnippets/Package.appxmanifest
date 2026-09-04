@@ -36,6 +36,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
+        AppListEntry="none"
         DisplayName="Tex Snippets"
         Description="Tex Snippets"
         BackgroundColor="transparent"
