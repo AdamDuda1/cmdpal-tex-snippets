@@ -4,6 +4,7 @@
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using TexSnippets.Commands;
 using TexSnippets.Latex;
+using TexSnippets.Settings;
 
 namespace TexSnippets;
 
@@ -14,16 +15,18 @@ namespace TexSnippets;
 internal sealed partial class TexPngFallbackItem : FallbackCommandItem
 {
     private readonly CopyPngCommand _copyPng;
+    private readonly SettingsManager _settings;
 
-    public TexPngFallbackItem()
-        : this(new CopyPngCommand())
+    public TexPngFallbackItem(SettingsManager settings)
+        : this(new CopyPngCommand(settings), settings)
     {
     }
 
-    private TexPngFallbackItem(CopyPngCommand copyPng)
+    private TexPngFallbackItem(CopyPngCommand copyPng, SettingsManager settings)
         : base(copyPng, "LaTeX as PNG", "TexSnippets.Fallback.Png")
     {
         _copyPng = copyPng;
+        _settings = settings;
 
         Icon = Icons.Image;
         Subtitle = "Typeset with LaTeX and copy as an image";
@@ -33,7 +36,7 @@ internal sealed partial class TexPngFallbackItem : FallbackCommandItem
 
     public override void UpdateQuery(string query)
     {
-        var offer = TexPngCompiler.IsAvailable
+        var offer = TexPngCompiler.IsAvailable(_settings.TexDirectory)
             && LatexRenderer.LooksLikeTex(query)
             && !LatexRenderer.Render(query).IsError;
 

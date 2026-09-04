@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <RootNamespace>TexSnippets</RootNamespace>
@@ -18,7 +18,7 @@
          sync with the Identity element in Package.appxmanifest. -->
     <AppxPackageIdentityName>AdamDuda.TexSnippetsforCmdPal</AppxPackageIdentityName>
     <AppxPackagePublisher>CN=1109C50D-6C82-42ED-BC81-8E1DBA7D9D6D</AppxPackagePublisher>
-    <AppxPackageVersion>0.2.0.0</AppxPackageVersion>
+    <AppxPackageVersion>0.3.0.0</AppxPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

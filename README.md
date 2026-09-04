@@ -32,6 +32,12 @@ Type a snippet, see it rendered, copy it as Unicode, source, or a typeset image.
   The Unicode preview (`α + β ≤ γ`), the raw LaTeX source, or a properly typeset PNG placed on the clipboard.
 
 
+* **Typeset preview** 
+
+  Turn *Live typeset preview* on in the settings and the details pane shows the real thing, typeset by
+  LaTeX while you type, next to the Unicode line. Off by default, because it costs a LaTeX run per pause.
+
+
 ### Example
 
 ```
@@ -49,15 +55,30 @@ Two rendering paths, picked to match what you're doing:
 (braces, math delimiters, `\left`/`\right` pairs, environments) and maps known control sequences to
 their Unicode equivalents.
 
-**PNG (the real thing)** - hands the snippet to your LaTeX installation, then to `dvipng`. Only runs when
-you actually invoke *Copy as PNG*. The image goes on the clipboard in two formats at once: PNG with
-transparency for browsers, Slack, Word and Notion, and a white-flattened `CF_DIB` for older image editors.
+**PNG (the real thing)** - hands the snippet to your LaTeX installation, then to `dvipng`. Runs when
+you invoke *Copy as PNG*, and in the background for the live preview if you turn that on. The image goes
+on the clipboard in two formats at once: PNG with transparency for browsers, Slack, Word and Notion, and a
+white-flattened `CF_DIB` for older image editors.
+
+## Settings
+
+Reachable from the context menu on *Tex Snippets* (Ctrl+K), or under Extensions in Command Palette's own
+settings.
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| Live typeset preview | off | Renders the snippet with LaTeX as you type and shows it in the details pane. |
+| Image resolution | 600 dpi | Resolution of the PNG placed on the clipboard. |
+| Transparent background | on | Off gives a solid white background instead. |
+| Text colour | `#000000` | Hex colour of the typeset maths. Dark inks are lightened in the preview when the theme is dark. |
+| Extra preamble | empty | Lines added before `\begin{document}` - `\usepackage` lines, `\newcommand` macros. |
+| LaTeX bin folder | empty | Where to find `latex.exe` and `dvipng.exe`, when they are somewhere unusual. |
 
 ## Requirements
 
 - Windows 10 version 2004 (build 19041) or later, x64 or ARM64
 - [Command Palette](https://learn.microsoft.com/windows/powertoys/command-palette/overview) (ships with PowerToys)
-- **For *Copy as PNG* only:** a LaTeX installation providing `latex.exe` and `dvipng.exe` -
+- **For *Copy as PNG* and the live preview only:** a LaTeX installation providing `latex.exe` and `dvipng.exe` -
   [TeX Live](https://tug.org/texlive/) or [MiKTeX](https://miktex.org/). Both are looked up on `PATH`
   and in the usual install locations. Without one, the PNG row simply doesn't appear and everything
   else works as normal.

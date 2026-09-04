@@ -4,6 +4,7 @@
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using TexSnippets.Commands;
 using TexSnippets.Latex;
+using TexSnippets.Settings;
 
 namespace TexSnippets;
 
@@ -16,17 +17,19 @@ internal sealed partial class TexFallbackItem : FallbackCommandItem
 {
     private readonly CopyTexCommand _copyPreview;
     private readonly CopyTexCommand _copySource;
+    private readonly SettingsManager _settings;
 
-    public TexFallbackItem()
-        : this(new CopyTexCommand("Copy preview"), new CopyTexCommand("Copy LaTeX"))
+    public TexFallbackItem(SettingsManager settings)
+        : this(new CopyTexCommand("Copy preview"), new CopyTexCommand("Copy LaTeX"), settings)
     {
     }
 
-    private TexFallbackItem(CopyTexCommand copyPreview, CopyTexCommand copySource)
+    private TexFallbackItem(CopyTexCommand copyPreview, CopyTexCommand copySource, SettingsManager settings)
         : base(copyPreview, "LaTeX preview", "TexSnippets.Fallback")
     {
         _copyPreview = copyPreview;
         _copySource = copySource;
+        _settings = settings;
 
         Icon = Icons.Tex;
         MoreCommands = [new CommandContextItem(copySource)];
