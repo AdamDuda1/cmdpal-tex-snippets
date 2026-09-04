@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using TexSnippets.Interop;
 
 namespace TexSnippets.Latex;
@@ -33,15 +34,25 @@ internal static class TexPngCompiler
     private static readonly string[] MathEnvironments =
         ["align", "alignat", "displaymath", "eqnarray", "equation", "flalign", "gather", "multline"];
 
-    private static readonly Lazy<string?> LatexExe = new(() => Locate("latex.exe"));
-    private static readonly Lazy<string?> DvipngExe = new(() => Locate("dvipng.exe"));
+    private static readonly Lock ToolchainLock = new();
+
+    /// <summary>
+    /// Last resolved pair of binaries, together with the override directory it was resolved for.
+    /// Locating them walks PATH, so the result is worth keeping - but only until the user points the
+    /// setting somewhere else.
+    /// </summary>
+    private static (string Directory, string? Latex, string? Dvipng)? _toolchain;
 
     /// <summary>Whether a usable TeX toolchain was found on this machine.</summary>
-    public static bool IsAvailable => LatexExe.Value is not null && DvipngExe.Value is not null;
-
-    public static TexPngResult Compile(string snippet, int dpi = 600)
+    public static bool IsAvailable(string toolDirectory)
     {
-        if (LatexExe.Value is not { } latex || DvipngExe.Value is not { } dvipng)
+        var (latex, dvipng) = Toolchain(toolDirectory);
+        return latex is not null && dvipng is not null;
+    }
+
+    public static TexPngResult Compile(string snippet, TexOptions options)
+    {
+        if (Toolchain(options.ToolDirectory) is not ({ } latex, { } dvipng))
         {
             return new TexPngResult(null, "No LaTeX installation found (looked for latex.exe and dvipng.exe).");
         }
@@ -51,7 +62,7 @@ internal static class TexPngCompiler
         try
         {
             var source = Path.Combine(workingDirectory.FullName, "snippet.tex");
-            File.WriteAllText(source, Document(snippet), new UTF8Encoding(false));
+            File.WriteAllText(source, Document(snippet, options.Preamble), new UTF8Encoding(false));
 
             var (latexExit, log) = Run(latex, "-interaction=nonstopmode -halt-on-error snippet.tex", workingDirectory.FullName);
             if (latexExit != 0)
@@ -59,9 +70,11 @@ internal static class TexPngCompiler
                 return new TexPngResult(null, FirstTexError(log));
             }
 
+            var background = options.Transparent ? "Transparent" : "\"rgb 1 1 1\"";
+
             var (dvipngExit, dvipngLog) = Run(
                 dvipng,
-                $"-q -D {dpi} -T tight -bg Transparent -o snippet.png snippet.dvi",
+                $"-q -D {options.Dpi} -T tight -bg {background} -fg \"{options.Ink.ToDvipng()}\" -o snippet.png snippet.dvi",
                 workingDirectory.FullName);
 
             var image = Path.Combine(workingDirectory.FullName, "snippet.png");
@@ -72,7 +85,10 @@ internal static class TexPngCompiler
 
             // dvipng crops flush to the ink, which looks cramped once pasted. Scale the margin
             // with the resolution so the proportions hold whatever dpi the caller asks for.
-            return new TexPngResult(PngPadding.Expand(File.ReadAllBytes(image), dpi / 12), null);
+            var margin = options.Dpi / 12;
+            var fill = options.Transparent ? (TexColor?)null : new TexColor(255, 255, 255);
+
+            return new TexPngResult(PngPadding.Expand(File.ReadAllBytes(image), margin, fill), null);
         }
         catch (IOException ex)
         {
@@ -96,7 +112,7 @@ internal static class TexPngCompiler
     /// squashed inline ones. There is deliberately no <c>\everydisplay</c>: it makes the AMS
     /// multi-line environments fail with "Improper \halign inside $$'s".
     /// </remarks>
-    private static string Document(string snippet)
+    private static string Document(string snippet, string preamble)
     {
         var body = Unwrap(snippet.Trim());
 
@@ -105,6 +121,8 @@ internal static class TexPngCompiler
 
         // Three '$' so that the doubled closing braces in \IfFileExists are literal text
         // rather than the end of an interpolation hole.
+        var extra = string.IsNullOrWhiteSpace(preamble) ? string.Empty : preamble.Trim() + "\n";
+
         return $$$"""
             \documentclass[12pt]{article}
             \usepackage{amsmath}
@@ -113,7 +131,7 @@ internal static class TexPngCompiler
             \IfFileExists{mathtools.sty}{\usepackage{mathtools}}{}
             \everymath{\displaystyle}
             \pagestyle{empty}
-            \begin{document}
+            {{{extra}}}\begin{document}
             {{{math}}}
             \end{document}
 
@@ -218,9 +236,28 @@ internal static class TexPngCompiler
         return "no output";
     }
 
-    /// <summary>Finds a TeX binary on PATH, then in the usual TeX Live / MiKTeX locations.</summary>
-    private static string? Locate(string fileName)
+    /// <summary>
+    /// The two binaries, resolved for <paramref name="toolDirectory"/> and cached until it changes.
+    /// </summary>
+    private static (string? Latex, string? Dvipng) Toolchain(string? toolDirectory)
     {
+        var directory = toolDirectory?.Trim() ?? string.Empty;
+
+        lock (ToolchainLock)
+        {
+            if (_toolchain is { } cached && cached.Directory == directory) return (cached.Latex, cached.Dvipng);
+            cached = (directory, Locate("latex.exe", directory), Locate("dvipng.exe", directory));
+            _toolchain = cached;
+
+            return (cached.Latex, cached.Dvipng);
+        }
+    }
+
+    private static string? Locate(string fileName, string toolDirectory)
+    {
+        if (toolDirectory.Length > 0 && TryPath(toolDirectory, fileName, out var configured))
+            return configured;
+
         foreach (var directory in (Environment.GetEnvironmentVariable("PATH") ?? string.Empty).Split(Path.PathSeparator))
         {
             if (directory.Length > 0 && TryPath(directory, fileName, out var onPath))
