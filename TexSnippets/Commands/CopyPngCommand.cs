@@ -5,6 +5,7 @@ using System;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using TexSnippets.Interop;
 using TexSnippets.Latex;
+using TexSnippets.Settings;
 
 namespace TexSnippets.Commands;
 
@@ -15,8 +16,11 @@ namespace TexSnippets.Commands;
 /// </summary>
 internal sealed partial class CopyPngCommand : InvokableCommand
 {
-    public CopyPngCommand()
+    private readonly SettingsManager _settings;
+
+    public CopyPngCommand(SettingsManager settings)
     {
+        _settings = settings;
         Name = "Copy as PNG";
         Icon = Icons.Image;
     }
@@ -28,7 +32,7 @@ internal sealed partial class CopyPngCommand : InvokableCommand
         if (string.IsNullOrWhiteSpace(Source))
             return CommandResult.KeepOpen();
 
-        var (png, error) = TexPngCompiler.Compile(Source);
+        var (png, error) = TexPngCompiler.Compile(Source, _settings.ForClipboard());
 
         if (png is null)
             return Toast(error ?? "LaTeX failed.", CommandResult.KeepOpen());
